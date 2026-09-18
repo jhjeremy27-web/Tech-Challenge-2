@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: {{ include "tech-challenge-2.fullname" . }}
+
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+
+  selector:
+    matchLabels:
+      app: {{ include "tech-challenge-2.name" . }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ include "tech-challenge-2.name" . }}
+
+    spec:
+      containers:
+        - name: {{ include "tech-challenge-2.name" . }}
+
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.container.port }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

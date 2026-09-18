@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  repository: 234617061592.dkr.ecr.us-east-1.amazonaws.com/tech-challenge-2-app
+  tag: "v1"
+  pullPolicy: IfNotPresent
+
+container:
+  port: 5000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
+
+ingress:
+  enabled: true
+  className: alb
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 50
+  targetMemoryUtilizationPercentage: 50
