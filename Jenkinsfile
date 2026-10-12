@@ -5,11 +5,15 @@ pipeline {
     stages {
         stage('Verify Repository Checkout') {
             steps {
-                echo 'Jenkins successfully loaded the Jenkinsfile from GitHub.'
-
-                sh 'pwd'
+                echo 'Jenkins successfully checked out the repository.'
                 sh 'git rev-parse --short HEAD'
-                sh 'ls -la'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Tech Challenge 2 Docker image...'
+                sh 'docker build -t tech-challenge-2-app:jenkins-test .'
             }
         }
     }
