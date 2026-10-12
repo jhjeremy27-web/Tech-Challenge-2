@@ -15,3 +15,9 @@ variable "kubernetes_version" {
   type        = string
   default     = "1.36"
 }
+
+variable "jenkins_admin_cidr" {
+  description = "Public IPv4 CIDR allowed to access Jenkins via SSH and port 8080"
+  type        = string
+  default     = "104.11.95.171/32"
+}
