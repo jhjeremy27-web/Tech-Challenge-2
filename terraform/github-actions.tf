@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:jhjeremy27-web/Tech-Challenge-2:ref:refs/heads/gitops"
+        "repo:jhjeremy27-web@321783778/Tech-Challenge-2@1364094293:ref:refs/heads/gitops"
       ]
     }
   }
