@@ -1,0 +1,79 @@
+
+name: GitOps CI - Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - gitops
+    paths-ignore:
+      - 'helm/tech-challenge-2/values.yaml'
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::234617061592:role/TechChallenge2GitHubActionsRole
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REPOSITORY: 234617061592.dkr.ecr.us-east-1.amazonaws.com/tech-challenge-2-app
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t "$ECR_REPOSITORY:$IMAGE_TAG" .
+          docker push "$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Update Helm image tag
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          path = Path("helm/tech-challenge-2/values.yaml")
+          content = path.read_text()
+
+          updated, count = re.subn(
+              r'(?m)^  tag:.*$',
+              f'  tag: "{os.environ["IMAGE_TAG"]}"',
+              content,
+              count=1
+          )
+
+          if count != 1:
+              raise RuntimeError("Could not find Helm image tag")
+
+          path.write_text(updated)
+          PY
+
+      - name: Commit updated Helm values
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add helm/tech-challenge-2/values.yaml
+
+          if git diff --cached --quiet; then
+            echo "No Helm changes to commit."
+          else
+            git commit -m "GitOps: update image tag to ${{ github.sha }}"
+            git push
+          fi
