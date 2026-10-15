@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "Hello from Tech Challenge 2! It's your host JCloud! GitOps deployment successful!"
+    return "Hello from Tech Challenge 2! It's your host JCloud! GitOps fully automated deployment verified!"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
